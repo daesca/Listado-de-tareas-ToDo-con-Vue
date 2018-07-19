@@ -10,9 +10,12 @@
       <h2 class="text-center">Tareas ingresadas</h2>
       <div id="actual-tasks" class="group-tasks">
         <ul>
-          <app-task v-for="(task, index) in tasks" :tasks="tasks" :task="task" :index="index" :key="index + 1"></app-task>
+          <app-task v-for="(task, index) in tasks" :tasks="tasks" :task="task" :index="index" :key="index + 1" @error="showError"></app-task>
        </ul>
       </div>
+    </div>
+    <div class="error-message" :class=" error ? 'active-error': ''">
+        <p>{{ errorMessage }}</p>
     </div>
   </div>
 </template>
@@ -36,7 +39,9 @@ export default {
            stateEdit: false
           }
           */
-      ]
+      ],
+      error: false,
+      errorMessage: ''
     }
   },
   methods: {
@@ -44,12 +49,19 @@ export default {
       if(!this.newTask == ''){
         return this.addToList();
       }
-      return M.toast({html: 'No se permiten campos vacios', classes:'toast-down-right'});
+      return this.showError('El campo no puede estar vacio');
      },
      addToList(){
       this.tasks.push({nameTask:this.newTask, stateComplete: false});
       this.newTask = '';
-     },    
+     },
+     showError(message){
+      this.errorMessage = message;
+      this.error = true;
+      setTimeout(() => {
+        this.error = false;
+      }, 3000);
+     }
   }
 }
 </script>
@@ -57,26 +69,17 @@ export default {
 <style lang="scss">
 body{
   font-family:"Julius Sans One";
-}
-.toast-down-right{
-  position:absolute;
-  background-color: tomato;
-  top:0;
-  color: white;
-  bottom: 50px !important;
-  right: 20px !important;
-  height: fit-content;
-  padding: 1em;
-  width: 400px;
-  margin:0 auto;
-  text-align:center;
+  position: relative;
 }
   .main-container{
     display: flex;
     flex-direction: column;
     margin:0 auto;
     min-height: 400px;
-    width: 500px;
+
+    @media(min-width: 768px){
+        width: 500px;  
+    }
 
     ul{
       list-style: none;
@@ -85,11 +88,15 @@ body{
 
     input[type="text"]{
       position: relative;
-      width: 82%;
+      width: 78%;
       vertical-align: middle;
       font-size: 16px;
       overflow: hidden;
       text-transform: uppercase;
+      @media (max-width: 1024px){
+        width: 65%;
+      }
+    
     }
 
     button{
@@ -98,9 +105,23 @@ body{
       padding: .3em 1em;
       color: white;
       font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
     }
     .group-tasks{
       background-color: #F2F2F2;
+    }
+    .error-message{
+      background-color: tomato;
+      color: white;
+      text-align: center;
+      margin-top: 5em;
+      transition: opacity .5s;
+      opacity: 0;
+      
+    }
+    .active-error{
+      opacity: 1;
     }
 
   }
